@@ -64,7 +64,9 @@ def main():
     if option == 1:
         bruteForce(listaAtivos)
     elif option == 2:
-        greedy(listaAtivos)
+        print("Escolha o criterio:\n1-Menor Risco\n2-Maior Retorno\n3-Maior valor em dividendos")
+        opt = int(input("Opcao: "))
+        greedy(listaAtivos, opt)
 
 
     print(t)

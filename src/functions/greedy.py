@@ -1,7 +1,4 @@
-def greedy(listaAtivos):
-    #Criterio Guloso - Selecionar o item que possui retorno
-    print("Escolha o criterio:\n1-Menor Risco\n2-Maior Retorno\n3-Maior valor em dividendos")
-    opt = int(input("Opcao: "))
+def greedy(listaAtivos, opt):
     if opt == 1:
         lstGuloso = sorted(listaAtivos, key=lambda d: d.riscoRetorno) 
     elif opt == 2:
