@@ -1,4 +1,4 @@
-from HistoricoAtivo import HistoricoAtivo
+from .HistoricoAtivo import HistoricoAtivo
 
 class Ativo:
     def __init__(self, nome):
