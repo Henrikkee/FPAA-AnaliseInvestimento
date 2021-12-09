@@ -1,6 +1,7 @@
 import csv
 import statistics
-import itertools
+from bruteForce import bruteForce
+from greedy import greedy
 from HistoricoAtivo import HistoricoAtivo
 from Ativo import Ativo
 from time import gmtime, strftime
@@ -8,10 +9,9 @@ from time import gmtime, strftime
 print("Inicio")
 
 listaAtivos = []
-listaRiscoRetorno = []
 
 # Ler arquivo .csv e adicionar os ativos na variavel listaAtivos
-with open('../datamenor.csv', newline='') as csvfile:
+with open('../data.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     ativo = None
     for row in reader:
@@ -35,51 +35,40 @@ for at in listaAtivos:
         if idx > 0:
             lstDividendo.append(round(item.preco - at.lstHistorico[idx-1].preco, 2))
 
-    retorno = (precoFinal + somaDividendos - precoInicial) / precoInicial
+    at.retorno = (precoFinal + somaDividendos - precoInicial) / precoInicial
     desvioPadrao = statistics.stdev(lstDividendo)
     mediaPreco = somaPreco/len(at.lstHistorico)
     riscoNormalizado = desvioPadrao/mediaPreco
-    riscoRetorno = riscoNormalizado/retorno
-    listaRiscoRetorno.append(riscoRetorno)
+    riscoRetorno = riscoNormalizado/at.retorno
+    at.riscoRetorno = riscoRetorno if riscoRetorno > 0 else abs(riscoRetorno) * 100 # Caso possua um ativo com risco negativo adicionar um peso extra para que nao seja recomendado
+    at.somaDividendos = somaDividendos
 
-    print(f'Acao: {at.nome}')
-    print(f'P_i: {precoInicial}')
-    print(f'P_t: {precoFinal}')
-    print(f'Dividendos: {somaDividendos}')
-    print(f'Retorno: {retorno}')
-    print(f'Desvio Padrao: {desvioPadrao}')
-    print(f'Media de Preco: {desvioPadrao}')
-    print(f'Risco Normalizado: {riscoNormalizado}')
-    print(f'Risco Retorno: {riscoRetorno}')
-    print('\n\n')
+    # print(f'Ativo: {at.nome}')
+    # print(f'P_i: {precoInicial}')
+    # print(f'P_t: {precoFinal}')
+    # print(f'Dividendos: {somaDividendos}')
+    # print(f'Retorno: {at.retorno}')
+    # print(f'Desvio Padrao: {desvioPadrao}')
+    # print(f'Media de Preco: {mediaPreco}')
+    # print(f'Risco Normalizado: {riscoNormalizado}')
+    # print(f'Risco Retorno: {at.riscoRetorno}\n')
 
+print("Menu de Investimentos:\n1- Analisar via Força Bruta\n2- Analisar via Guloso")
+option = int(input())
 
 t = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 
-# Força Bruta
-lstMenorValor = [{"pativos": None, "val": 100}] * 5 # Salvar os items com menos valor de Risco Portifolio
 
-for porcentagemDivida in itertools.product(range(0,101), repeat=len(listaAtivos)): 
-    if sum(porcentagemDivida) == 100:
-        value = 0
-        somaValue = 0
-        cnt = 0
-        for idx, pd in enumerate(porcentagemDivida):
-            value = listaRiscoRetorno[idx] *  (pd/100) # Risco Retorno * Peso
-            cnt += 1 if value > 0 else 0
-            somaValue += value
-        riscoPortifolio = somaValue/cnt
-        if lstMenorValor[-1]['val'] > riscoPortifolio:
-            lstMenorValor.pop()
-            lstMenorValor.append({"pativos": porcentagemDivida, "val": riscoPortifolio})
-            lstMenorValor = sorted(lstMenorValor, key=lambda d: d['val']) 
+if option == 1:
+    bruteForce(listaAtivos)
+elif option == 2:
+    greedy(listaAtivos)
 
-print("Lista de Sugestoes: ")
-for idx, lmv in enumerate(lstMenorValor):
-    print(f'{idx+1} - ', end='')
-    for idx2, porcentagem in enumerate(lmv['pativos']):
-        print(f'{porcentagem}% em {listaAtivos[idx2].nome.upper()} ', end='')
-    print('')
+
+
+    
+
+
 
 
 print(t)
