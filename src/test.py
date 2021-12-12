@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../src')
-
 from functions.readFile import readFile
 from functions.bruteForce import bruteForce
 from functions.greedy import greedy
