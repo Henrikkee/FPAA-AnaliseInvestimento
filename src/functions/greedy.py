@@ -1,4 +1,8 @@
 def greedy(listaAtivos, opt):
+    """
+    Retorna uma lista de ativos ordenados a base de um criterio escolhido pelo usuario
+    """
+
     if opt == 1:
         lstGuloso = sorted(listaAtivos, key=lambda d: d.riscoRetorno) 
     elif opt == 2:
@@ -6,6 +10,4 @@ def greedy(listaAtivos, opt):
     elif opt == 3:
         lstGuloso = sorted(listaAtivos, key=lambda d: d.somaDividendos, reverse=True) 
     
-    print("Recomendacoes: ")
-    for idx,l in enumerate(lstGuloso):
-        print(f'{idx+1} - {l.nome}')
+    return lstGuloso

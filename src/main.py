@@ -1,76 +1,35 @@
-import csv
-import statistics
+from functions.readFile import readFile
 from functions.bruteForce import bruteForce
 from functions.greedy import greedy
-from classes.Ativo import Ativo
-from classes.HistoricoAtivo import HistoricoAtivo
-from time import gmtime, strftime
+from functions.random import randomAlg
+def printRecomendacoes(listaAtivos):
+    print("Lista de Recomendacoes: ")
+    for idx,l in enumerate(listaAtivos):
+        print(f'{idx+1} - {l.nome}')
 
 def main():
 
     print("Inicio")
+    # Funcao para ler os dados no CSV e realizar calculos de retorno, desvio padrão, media de preco, risco normalizado, risco retorno
+    path = input("Digite o caminho do arquivo de dados de entrada: ")
+    listaAtivos = readFile(path)
 
-    listaAtivos = []
+    option = -1
 
-    # Ler arquivo .csv e adicionar os ativos na variavel listaAtivos
-    with open('../data.csv', newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        ativo = None
-        for row in reader:
-            if(ativo is None or (ativo is not None and ativo.nome != row['ativo'])):
-                ativo = Ativo(row['ativo'])
-                listaAtivos.append(ativo)
-            ht = HistoricoAtivo(row['data'],float(row['preco']), float(row['valor']), float(row['dividendo']))
-            ativo.adicionaHistorico(ht)
+    while option != 4:
+        print("\nMenu de Investimentos:\n1- Analisar via Força Bruta\n2- Analisar via Guloso\n3- Analise Aleatoria\n4- Sair")
+        option = int(input("Opcao: "))
 
-    # Realizar calculos de retorno, desvio padrão, media de preco, risco normalizado, risco retorno
-    for at in listaAtivos:
-        precoInicial = at.lstHistorico[0].preco
-        precoFinal = at.lstHistorico[-1].preco
-        
-        somaPreco = 0
-        somaDividendos = 0
-        lstDividendo = []
-        for idx,item in enumerate(at.lstHistorico):
-            somaDividendos += item.dividendo
-            somaPreco += item.preco
-            if idx > 0:
-                lstDividendo.append(round(item.preco - at.lstHistorico[idx-1].preco, 2))
-
-        at.retorno = (precoFinal + somaDividendos - precoInicial) / precoInicial
-        desvioPadrao = statistics.stdev(lstDividendo)
-        mediaPreco = somaPreco/len(at.lstHistorico)
-        riscoNormalizado = desvioPadrao/mediaPreco
-        riscoRetorno = riscoNormalizado/at.retorno
-        at.riscoRetorno = riscoRetorno if riscoRetorno > 0 else abs(riscoRetorno) * 100 # Caso possua um ativo com risco negativo adicionar um peso extra para que nao seja recomendado
-        at.somaDividendos = somaDividendos
-
-        # print(f'Ativo: {at.nome}')
-        # print(f'P_i: {precoInicial}')
-        # print(f'P_t: {precoFinal}')
-        # print(f'Dividendos: {somaDividendos}')
-        # print(f'Retorno: {at.retorno}')
-        # print(f'Desvio Padrao: {desvioPadrao}')
-        # print(f'Media de Preco: {mediaPreco}')
-        # print(f'Risco Normalizado: {riscoNormalizado}')
-        # print(f'Risco Retorno: {at.riscoRetorno}\n')
-
-    print("Menu de Investimentos:\n1- Analisar via Força Bruta\n2- Analisar via Guloso")
-    option = int(input())
-
-    t = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
-
-    if option == 1:
-        bruteForce(listaAtivos)
-    elif option == 2:
-        print("Escolha o criterio:\n1-Menor Risco\n2-Maior Retorno\n3-Maior valor em dividendos")
-        opt = int(input("Opcao: "))
-        greedy(listaAtivos, opt)
-
-
-    print(t)
-    print(strftime("%Y-%m-%d %H:%M:%S", gmtime()))
+        if option == 1: #Algoritmo de força bruta
+            numSugestoes = int(input('Digite o numero de ativos que deseja obter: '))
+            bruteForce(listaAtivos,numSugestoes)
+        elif option == 2: #Solução gulosa
+            print("Escolha o criterio:\n1-Risco/Retorno\n2-Maior Retorno\n3-Maior valor em dividendos")
+            opt = int(input("Opcao: "))
+            printRecomendacoes(greedy(listaAtivos, opt))
+        elif option == 3: #Estratégia aleatória
+            printRecomendacoes(randomAlg(listaAtivos))
+    
 
     print("Fim")
 
